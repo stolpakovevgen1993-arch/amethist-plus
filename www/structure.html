@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Структура та Ролі — Аметист плюс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+            --border-radius: 24px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
+            padding: 24px; 
+            margin: 0; 
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .top-bar { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--bg-card); backdrop-filter: blur(16px); 
+            padding: 20px; border-radius: var(--border-radius); 
+            margin-bottom: 24px; border: 1px solid var(--border-glass); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: relative; z-index: 10;
+        }
+        .top-bar h2 { margin: 0; color: var(--caramel); font-weight: 800; font-size: 20px; }
+
+        .grid { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; position: relative; z-index: 10; }
+        
+        .panel { 
+            background: var(--bg-card); backdrop-filter: blur(16px); 
+            padding: 24px; border-radius: var(--border-radius); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+            border: 1px solid var(--border-glass); 
+            flex: 1; min-width: 320px; 
+        }
+        
+        h3 { margin-top: 0; color: var(--caramel); font-size: 18px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; }
+        
+        label { display: block; margin-top: 14px; font-weight: 700; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        input, select { 
+            width: 100%; padding: 12px; margin-top: 6px; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; 
+            background: rgba(18, 15, 13, 0.9); color: var(--text-main); 
+            box-sizing: border-box; font-size: 14px; outline: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        input:focus, select:focus { border-color: var(--caramel); }
+
+        .btn { 
+            background: linear-gradient(135deg, #ffb300, #ff8f00); 
+            color: #120f0d; border: none; padding: 14px; width: 100%; 
+            border-radius: 14px; cursor: pointer; font-size: 15px; font-weight: 800; 
+            margin-top: 20px; box-shadow: 0 8px 25px var(--caramel-glow);
+            text-transform: uppercase;
+        }
+        .btn:active { transform: scale(0.97); }
+        
+        .btn-link { 
+            background: rgba(255,255,255,0.06); color: var(--text-main); 
+            border: 1px solid var(--border-glass); font-size: 13px; 
+            padding: 8px 14px; border-radius: 10px; text-decoration: none; font-weight: 700; 
+        }
+        .btn-link:hover { background: rgba(255,255,255,0.1); }
+
+        .dept-card { 
+            background: rgba(18, 15, 13, 0.6); padding: 16px; border-radius: 16px; 
+            margin-bottom: 16px; border-left: 5px solid var(--caramel); 
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .dept-card h4 { margin: 0 0 12px 0; color: var(--text-main); font-size: 16px; }
+        
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; color: white; margin: 3px;}
+        .role-master { background: rgba(142, 68, 173, 0.3); color: #d7bde2; border: 1px solid rgba(142, 68, 173, 0.4); }
+        .role-operator { background: rgba(230, 126, 34, 0.3); color: #f5b041; border: 1px solid rgba(230, 126, 34, 0.4); }
+        .role-mechanic { background: rgba(52, 73, 94, 0.5); color: #bdc3c7; border: 1px solid rgba(52, 73, 94, 0.6); }
+        .role-electrician { background: rgba(241, 196, 15, 0.3); color: #f9e79f; border: 1px solid rgba(241, 196, 15, 0.4); }
+        .equip-badge { background: rgba(127, 140, 141, 0.3); color: #ecf0f1; border: 1px solid rgba(127, 140, 141, 0.4); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; color: var(--text-main); }
+        th { background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="top-bar">
+        <div>
+            <a href="chief.html" class="btn-link">⬅ На дашборд</a>
+            <a href="index.html" class="btn-link" style="margin-left: 8px;">🛠 Пульт Майстра</a>
+        </div>
+        <h2>🏢 Керування структурою, цехами та ролями</h2>
+        <div></div>
+    </div>
+
+    <div class="grid">
+        <!-- Крок 1: Створити цех -->
+        <div class="panel">
+            <h3>➕ Крок 1: Створити цех</h3>
+            <label>Назва цеху:</label>
+            <input type="text" id="deptName" placeholder="напр. Цукерковий цех">
+            <button type="button" class="btn" onclick="addDepartment()">Створити цех</button>
+        </div>
+
+        <!-- Крок 2: Реєстрація працівника -->
+        <div class="panel">
+            <h3>👥 Крок 2: Швидке додавання працівника</h3>
+            <label>ПІБ працівника:</label>
+            <input type="text" id="userName" placeholder="напр. Петренко П.П.">
+            
+            <label>Посада / Роль:</label>
+            <select id="userRole" onchange="handleRoleChange()">
+                <option value="Майстер">Майстер (керує заявками цеху)</option>
+                <option value="Оператор">Оператор (створює заявки)</option>
+                <option value="Слюсар">Слюсар (механіка)</option>
+                <option value="Електрик">Електрик (електрика)</option>
+                <option value="Головний інженер">Головний інженер</option>
+            </select>
+
+            <label>Прив'язка до цеху:</label>
+            <select id="userDeptSelect">
+                <option value="Загальний">Загальний / Всі цехи</option>
+            </select>
+
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #00e676, #00c853); color: #120f0d;" onclick="addUser()">Зареєструвати</button>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 24px;">
+        <!-- Панель модерації та розподілу персоналу -->
+        <div class="panel" style="flex: 2; border-left: 5px solid var(--caramel);">
+            <h3>🛡 Модерація та розподіл персоналу</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-top: 0;">Тут відображаються нові акаунти та весь персонал системи. Затверджуйте нових працівників і призначайте цехи.</p>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ПІБ Працівника</th>
+                            <th>Поточна роль</th>
+                            <th>Змінити роль</th>
+                            <th>Змінити цех</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manageUsersTable">
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Завантаження...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 24px;">
+        <!-- Структура фабрики -->
+        <div class="panel" style="flex: 2;">
+            <h3>🗺 Структура фабрики по цехах</h3>
+            <div id="factoryStructure"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('userRole').addEventListener('change', handleRoleChange);
+
+        function handleRoleChange() {
+            const role = document.getElementById('userRole').value;
+            const deptSelect = document.getElementById('userDeptSelect');
+            if (role === 'Слюсар' || role === 'Електрик' || role === 'Головний інженер') {
+                deptSelect.value = 'Загальний';
+                deptSelect.disabled = true;
+            } else {
+                deptSelect.disabled = false;
+            }
+        }
+
+        async function init() {
+            try {
+                await loadDepartments();
+                await loadData();
+            } catch (error) {
+                console.error("Помилка завантаження даних:", error);
+            }
+        }
+
+        async function loadDepartments() {
+            const res = await fetch('/departments/');
+            if (!res.ok) return;
+            const depts = await res.json();
+            
+            const select = document.getElementById('userDeptSelect');
+            select.innerHTML = '<option value="Загальний">Загальний / Всі цехи</option>';
+            depts.forEach(d => {
+                select.innerHTML += `<option value="${d.name}">${d.name}</option>`;
+            });
+            return depts;
+        }
+
+        async function loadData() {
+            const [resD, resU, resE] = await Promise.all([
+                fetch('/departments/'),
+                fetch('/users/'),
+                fetch('/equipment/')
+            ]);
+            
+            if (!resD.ok || !resU.ok) return;
+
+            const depts = await resD.json();
+            const users = await resU.json();
+            const equipments = resE.ok ? await resE.json() : [];
+
+            loadStructure(depts, users, equipments);
+            loadUserManagement(users, depts);
+        }
+
+        function loadStructure(depts, users, equipments) {
+            const container = document.getElementById('factoryStructure');
+            container.innerHTML = '';
+
+            if(depts.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);">Цехи ще не створені. Додайте перший цех у формі вище.</p>';
+                return;
+            }
+
+            depts.forEach(dept => {
+                const deptUsers = users.filter(u => u.department_name === dept.name && u.is_approved);
+                const deptEq = equipments.filter(e => e.location === dept.name);
+
+                let usersHtml = deptUsers.map(u => {
+                    let bClass = 'role-operator';
+                    if(u.role === 'Майстер') bClass = 'role-master';
+                    if(u.role === 'Слюсар') bClass = 'role-mechanic';
+                    if(u.role === 'Електрик') bClass = 'role-electrician';
+                    return `<span class="badge ${bClass}">${u.full_name} (${u.role})</span>`;
+                }).join(' ');
+
+                let eqHtml = deptEq.map(e => `<span class="badge equip-badge">⚙️ ${e.name}</span>`).join(' ');
+
+                container.innerHTML += `
+                    <div class="dept-card">
+                        <h4>🏭 ${dept.name}</h4>
+                        <div style="margin-bottom: 8px;"><strong>Персонал:</strong><br>${usersHtml || '<small style="color:var(--text-muted);">Немає привʼязаного персоналу</small>'}</div>
+                        <div><strong>Обладнання:</strong><br>${eqHtml || '<small style="color:var(--text-muted);">Немає верстатів</small>'}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function loadUserManagement(users, depts) {
+            const tbody = document.getElementById('manageUsersTable');
+            tbody.innerHTML = '';
+
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Немає користувачів у системі</td></tr>`;
+                return;
+            }
+
+            users.forEach(u => {
+                let deptOptions = depts.map(d => `<option value="${d.name}" ${u.department_name === d.name ? 'selected' : ''}>${d.name}</option>`).join('');
+                let statusBadge = u.is_approved 
+                    ? `<span style="color:var(--mint); font-size:11px; font-weight:700;">Активний</span>` 
+                    : `<span style="color:var(--caramel); font-size:11px; font-weight:700; background:rgba(255,179,0,0.15); padding:2px 8px; border-radius:6px;">⏳ Очікує</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${u.full_name}</strong> ${statusBadge}<br><small style="color:var(--text-muted);">PIN: ${u.pin_code || '1234'}</small></td>
+                        <td><span class="badge role-operator">${u.role}</span></td>
+                        <td>
+                            <select id="role-${u.id}">
+                                <option value="Головний інженер" ${u.role === 'Головний інженер' ? 'selected' : ''}>Головний інженер</option>
+                                <option value="Майстер" ${u.role === 'Майстер' ? 'selected' : ''}>Майстер</option>
+                                <option value="Оператор" ${u.role === 'Оператор' ? 'selected' : ''}>Оператор</option>
+                                <option value="Слюсар" ${u.role === 'Слюсар' ? 'selected' : ''}>Слюсар</option>
+                                <option value="Електрик" ${u.role === 'Електрик' ? 'selected' : ''}>Електрик</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select id="dept-${u.id}">
+                                <option value="Загальний" ${u.department_name === 'Загальний' ? 'selected' : ''}>Загальний</option>
+                                ${deptOptions}
+                            </select>
+                        </td>
+                        <td>
+                            <button onclick="saveUserChanges(${u.id})" style="background: linear-gradient(135deg, #00e676, #00c853); color: #120f0d; border: none; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 12px;">✅ Затвердити</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function addDepartment() {
+            const nameInput = document.getElementById('deptName');
+            const name = nameInput.value.trim();
+            if (!name) return alert("Введіть назву цеху!");
+
+            try {
+                const res = await fetch('/departments/', {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, is_active: true })
+                });
+                if (res.ok) {
+                    nameInput.value = '';
+                    init();
+                    alert("✅ Цех успішно створено!");
+                }
+            } catch (e) {
+                alert("❌ Помилка зв'язку з сервером!");
+            }
+        }
+
+        async function addUser() {
+            const nameInput = document.getElementById('userName');
+            const name = nameInput.value.trim();
+            if (!name) return alert("Введіть ПІБ!");
+
+            const deptSelect = document.getElementById('userDeptSelect');
+            const data = {
+                full_name: name,
+                role: document.getElementById('userRole').value,
+                department_name: deptSelect.disabled ? 'Загальний' : deptSelect.value,
+                pin_code: "1234"
+            };
+            
+            try {
+                const res = await fetch('/users/', {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    nameInput.value = '';
+                    init();
+                    alert("✅ Працівника успішно додано!");
+                }
+            } catch (e) {
+                alert("❌ Помилка зв'язку з сервером!");
+            }
+        }
+
+        async function saveUserChanges(userId) {
+            const newRole = document.getElementById(`role-${userId}`).value;
+            const newDept = document.getElementById(`dept-${userId}`).value;
+
+            try {
+                const res = await fetch(`/users/${userId}/role`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: newRole, department_name: newDept })
+                });
+
+                if (res.ok) {
+                    alert("✅ Працівника успішно затверджено та оновлено!");
+                    init();
+                } else {
+                    alert("❌ Помилка оновлення на сервері.");
+                }
+            } catch(e) {
+                alert("❌ Помилка зв'язку з сервером.");
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

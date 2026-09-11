@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мобільний пульт оператора — Аметист плюс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+            --border-radius: 24px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
+            padding: 16px; 
+            margin: 0; 
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; box-sizing: border-box;
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.15) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .operator-container {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 440px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+        }
+
+        .brand-header {
+            text-align: center; margin-bottom: 20px;
+        }
+        .brand-logo-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #ffb300, #ff8f00);
+            border-radius: 16px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #120f0d; font-size: 24px; font-weight: 800;
+            box-shadow: 0 10px 25px var(--caramel-glow);
+            margin-bottom: 10px;
+        }
+        .brand-title { font-size: 22px; font-weight: 800; margin: 0; color: var(--text-main); }
+        .brand-subtitle { font-size: 11px; color: var(--caramel); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-top: 4px; }
+
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, select, textarea {
+            width: 100%; padding: 14px 16px;
+            background: rgba(18, 15, 13, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px; color: var(--text-main);
+            font-size: 14px; box-sizing: border-box;
+            outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--caramel); }
+        textarea { resize: vertical; min-height: 90px; }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #00e676, #00c853);
+            color: #120f0d; border: none;
+            width: 100%; padding: 16px;
+            border-radius: 14px; font-size: 15px; font-weight: 800;
+            cursor: pointer; box-shadow: 0 8px 25px rgba(0,230,118,0.25);
+            text-transform: uppercase; margin-top: 10px;
+        }
+        .btn-submit:active { transform: scale(0.97); }
+
+        .back-link {
+            display: block; text-align: center; margin-top: 16px;
+            color: var(--text-muted); font-size: 13px; text-decoration: none; font-weight: 600;
+        }
+        .back-link:hover { color: var(--caramel); }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="operator-container">
+        <div class="brand-header">
+            <div class="brand-logo-icon">А+</div>
+            <h1 class="brand-title">Виклик служби ТОіР</h1>
+            <div class="brand-subtitle">Мобільний пульт оператора</div>
+        </div>
+
+        <div class="form-group">
+            <label>Цех:</label>
+            <input type="text" id="opDep" readonly style="color: var(--caramel); font-weight: 700;">
+        </div>
+
+        <div class="form-group">
+            <label>Обладнання / Верстат:</label>
+            <input type="text" id="opEq" readonly style="color: var(--caramel); font-weight: 700;">
+        </div>
+
+        <div class="form-group">
+            <label>Спеціальність виклику:</label>
+            <select id="opSpecialty">
+                <option value="Слюсар">Слюсар (Механіка)</option>
+                <option value="Електрик">Електрик (Електрика)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Опис проблеми / несправності:</label>
+            <textarea id="opDesc" placeholder="Опишіть, що сталося (напр. сторонній шум, зупинився двигун)..."></textarea>
+        </div>
+
+        <button class="btn-submit" onclick="sendTicket()">🚨 Терміновий виклик</button>
+        
+        <a href="index.html" class="back-link">⬅ На головну</a>
+    </div>
+
+    <script>
+        // Автоматично зчитуємо параметри з URL, які зашиті в QR-код (напр: ?eq=Токарний&dep=Цукерковий)
+        const urlParams = new URLSearchParams(window.location.search);
+        const eqName = urlParams.get('eq');
+        const depName = urlParams.get('dep');
+
+        if (eqName && depName) {
+            document.getElementById('opEq').value = decodeURIComponent(eqName);
+            document.getElementById('opDep').value = decodeURIComponent(depName);
+        } else {
+            // Якщо відкрили напряму без QR-коду
+            document.getElementById('opEq').value = "Загальний верстат";
+            document.getElementById('opDep').value = "Основний цех";
+        }
+
+        async function sendTicket() {
+            const equipment = document.getElementById('opEq').value;
+            const department_name = document.getElementById('opDep').value;
+            const specialty = document.getElementById('opSpecialty').value;
+            const description = document.getElementById('opDesc').value.trim();
+
+            if (!description) {
+                alert("Будь ласка, опишіть проблему!");
+                return;
+            }
+
+            try {
+                const response = await fetch('/tickets/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        department_name: department_name,
+                        equipment: equipment,
+                        description: description,
+                        priority: "Аварійний",
+                        specialty: specialty,
+                        status: "Нова",
+                        mechanic_name: ""
+                    })
+                });
+
+                if (response.ok) {
+                    alert("🚨 Заявку успішно надіслано черговому фахівцю!");
+                    document.getElementById('opDesc').value = '';
+                } else {
+                    alert("❌ Помилка надсилання заявки на сервер.");
+                }
+            } catch (e) {
+                alert("❌ Немає зв'язку з сервером. Перевірте підключення.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CandyFactory Pro Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #12141c;
+            --bg-surface: #1a1d29;
+            --bg-card: rgba(26, 29, 41, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.07);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.2);
+            --mint: #00c853;
+            --mint-glow: rgba(0, 200, 83, 0.2);
+            --strawberry: #ff3d00;
+            --strawberry-glow: rgba(255, 61, 0, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* Вибуховий градієнтний фон верху */
+        .header-glow {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 220px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.15) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Шапка */
+        .app-bar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #ffb300, #ff8f00);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: #12141c; font-size: 22px; font-weight: 800;
+            box-shadow: 0 8px 20px var(--caramel-glow);
+        }
+
+        .brand-text h3 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+        .brand-text span { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+        .profile-btn {
+            width: 40px; height: 40px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* Контейнер */
+        .container {
+            position: relative;
+            z-index: 10;
+            padding: 0 16px 100px 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Головна кнопка сканера (Вибуховий елемент для операторів) */
+        .scanner-hero {
+            background: linear-gradient(135deg, #1f2433, #151823);
+            border: 1px solid rgba(255, 179, 0, 0.3);
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanner-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -50px; right: -50px; width: 150px; height: 150px;
+            background: radial-gradient(circle, var(--caramel-glow) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .scanner-btn {
+            background: linear-gradient(135deg, #ffb300, #ffa000);
+            color: #12141c;
+            border: none;
+            width: 72px; height: 72px;
+            border-radius: 24px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px var(--caramel-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .scanner-btn:active { transform: scale(0.92); }
+
+        .scanner-hero h2 { margin: 0 0 6px 0; font-size: 20px; font-weight: 700; }
+        .scanner-hero p { margin: 0; font-size: 13px; color: var(--text-muted); }
+
+        /* Сітка показників */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            padding: 16px;
+            border-radius: 20px;
+        }
+
+        .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .metric-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        
+        .metric-card.active-ticket .metric-icon { background: var(--strawberry-glow); color: var(--strawberry); }
+        .metric-card.done-ticket .metric-icon { background: var(--mint-glow); color: var(--mint); }
+
+        .metric-value { font-size: 26px; font-weight: 800; }
+
+        /* Секції швидких переходів */
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; padding: 0 4px;
+        }
+        .section-header h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-main); }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .module-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 18px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .module-card:active { transform: scale(0.97); background: #222636; }
+
+        .module-icon {
+            width: 44px; height: 44px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
+        }
+
+        .module-card h4 { margin: 0; font-size: 15px; font-weight: 700; }
+        .module-card p { margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+        /* Нижня навігаційна панель у стильній скляній капсулі */
+        .nav-dock {
+            position: fixed;
+            bottom: 16px; left: 16px; right: 16px;
+            max-width: 450px; margin: 0 auto;
+            background: rgba(18, 20, 28, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            display: flex; justify-content: space-around;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .dock-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-muted); text-decoration: none; font-size: 10px; font-weight: 600; gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .dock-item.active { color: var(--caramel); }
+        .dock-item .material-icons-round { font-size: 24px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-glow"></div>
+
+    <!-- Шапка додатка -->
+    <div class="app-bar">
+        <div class="brand">
+            <div class="brand-logo">CF</div>
+            <div class="brand-text">
+                <h3>CandyFactory</h3>
+                <span>Mobile Terminal</span>
+            </div>
+        </div>
+        <div class="profile-btn" onclick="window.location.href='login.html'">
+            <span class="material-icons-round">person</span>
+        </div>
+    </div>
+
+    <!-- Основний мобільний екран -->
+    <div class="container">
+        
+        <!-- Герой-сканер для швидкого виклику служби з верстата -->
+        <div class="scanner-hero">
+            <button class="scanner-btn" onclick="openScanner()">
+                <span class="material-icons-round">qr_code_scanner</span>
+            </button>
+            <h2>Сканувати QR верстата</h2>
+            <p>Наведіть камеру на код обладнання для миттєвого виклику майстра чи слюсаря</p>
+        </div>
+
+        <!-- Показники в реальному часі -->
+        <div class="metrics-grid">
+            <div class="metric-card active-ticket">
+                <div class="metric-header">
+                    <span class="metric-title">В роботі</span>
+                    <div class="metric-icon"><span class="material-icons-round">bolt</span></div>
+                </div>
+                <div class="metric-value" id="mobileActive">--</div>
+            </div>
+            <div class="metric-card done-ticket">
+                <div class="metric-header">
+                    <span class="metric-title">Виконано</span>
+                    <div class="metric-icon"><span class="material-icons-round">check_circle</span></div>
+                </div>
+                <div class="metric-value" id="mobileDone">--</div>
+            </div>
+        </div>
+
+        <!-- Модулі управління -->
+        <div class="section-header">
+            <h3>Виробничі модулі</h3>
+        </div>
+
+        <div class="modules-grid">
+            <a href="index.html" class="module-card">
+                <div class="module-icon" style="background: var(--caramel-glow); color: var(--caramel);">
+                    <span class="material-icons-round">admin_panel_settings</span>
+                </div>
+                <div>
+                    <h4>Пульт Майстра</h4>
+                    <p>Керування чергою та пріоритетами</p>
+                </div>
+            </a>
+
+            <a href="mechanic.html" class="module-card">
+                <div class="module-icon" style="background: var(--mint-glow); color: var(--mint);">
+                    <span class="material-icons-round">engineering</span>
+                </div>
+                <div>
+                    <h4>Пульт Слюсаря</h4>
+                    <p>Ремонт та списання зі складу</p>
+                </div>
+            </a>
+
+            <a href="schedule.html" class="module-card">
+                <div class="module-icon" style="background: rgba(52, 152, 219, 0.2); color: #3498db;">
+                    <span class="material-icons-round">date_range</span>
+                </div>
+                <div>
+                    <h4>Табель Змін</h4>
+                    <p>Графік обліку часу та ЗП</p>
+                </div>
+            </a>
+
+            <a href="warehouse.html" class="module-card">
+                <div class="module-icon" style="background: rgba(155, 89, 182, 0.2); color: #9b59b6;">
+                    <span class="material-icons-round">inventory</span>
+                </div>
+                <div>
+                    <h4>Склад</h4>
+                    <p>Контроль залишків деталей</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Нижня панель швидкого доступу -->
+    <div class="nav-dock">
+        <a href="index_mobile.html" class="dock-item active">
+            <span class="material-icons-round">grid_view</span>
+            Головна
+        </a>
+        <a href="structure.html" class="dock-item">
+            <span class="material-icons-round">account_tree</span>
+            Цехи
+        </a>
+        <a href="manager.html" class="dock-item">
+            <span class="material-icons-round">receipt_long</span>
+            Закупівлі
+        </a>
+        <a href="login.html" class="dock-item">
+            <span class="material-icons-round">login</span>
+            Вхід
+        </a>
+    </div>
+
+    <script>
+        // Імітація сканера або перенаправлення на операторську форму за QR-кодом
+        function openScanner() {
+            // Для тесту за замовчуванням відкриваємо оператора для тестового верстата
+            const testEq = prompt("Імітація сканування QR-коду.\nВведіть назву верстата (або залиште для тесту):", "Токарний 1К62");
+            const testDep = prompt("Введіть назву цеху:", "Механічний цех");
+            
+            if (testEq && testDep) {
+                window.location.href = `operator.html?eq=${encodeURIComponent(testEq)}&dep=${encodeURIComponent(testDep)}`;
+            }
+        }
+
+        // Автоматичне підтягування активних показників з бекенду
+        async function loadMobileMetrics() {
+            try {
+                const res = await fetch('/tickets/');
+                const tickets = await res.json();
+                
+                const active = tickets.filter(t => t.status !== 'Виконано').length;
+                const done = tickets.filter(t => t.status === 'Виконано').length;
+
+                document.getElementById('mobileActive').innerText = active;
+                document.getElementById('mobileDone').innerText = done;
+            } catch (e) {
+                console.log("Офлайн режим або завантаження показників...");
+            }
+        }
+
+        loadMobileMetrics();
+    </script>
+</body>
+</html>

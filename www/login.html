@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід у систему - CandyFactory</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #2c3e50; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .login-card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+            width: 350px; 
+            text-align: center; 
+        }
+        h2 { color: #2c3e50; margin-top: 0; }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            font-size: 16px; 
+        }
+        .btn { 
+            background: #ffb300; 
+            color: #2c3e50; 
+            border: none; 
+            padding: 12px; 
+            width: 100%; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+        }
+        .btn:hover { background: #e09f00; }
+        .error { color: #e74c3c; font-size: 14px; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>🏭 Авторизація</h2>
+        <p style="color: #7f8c8d; font-size: 14px;">Введіть свої дані для доступу до системи</p>
+        
+        <input type="text" id="fullName" placeholder="Ваше ПІБ (напр. Іванов І.І.)">
+        <input type="password" id="pinCode" placeholder="PIN-код (напр. 1234)" maxlength="6">
+        
+        <button class="btn" onclick="handleLogin()">Увійти</button>
+        <div class="error" id="errorMsg">Невірне ПІБ або PIN-код</div>
+    </div>
+
+    <script>
+        // IP-адреса твого комп'ютера
+        const SERVER_URL = "http://192.168.1.103:8000";
+
+        async function handleLogin() {
+            const full_name = document.getElementById('fullName').value.trim();
+            const pin_code = document.getElementById('pinCode').value.trim();
+            const errorDiv = document.getElementById('errorMsg');
+
+            if (!full_name || !pin_code) {
+                errorDiv.innerText = "Заповніть всі поля!";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SERVER_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name, pin_code })
+                });
+                
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    localStorage.setItem('currentUser', JSON.stringify(data));
+
+                    // Виправлено: тепер перенаправлення йде через SERVER_URL на бекенд
+                    switch(data.role) {
+                        case 'Головний інженер':
+                            window.location.href = `${SERVER_URL}/chief.html`;
+                            break;
+                        case 'Майстер':
+                            window.location.href = `${SERVER_URL}/index.html`;
+                            break;
+                        case 'Слюсар':
+                            window.location.href = `${SERVER_URL}/mechanic.html`;
+                            break;
+                        case 'Електрик':
+                            window.location.href = `${SERVER_URL}/electrician.html`;
+                            break;
+                        case 'Оператор':
+                            window.location.href = `${SERVER_URL}/equipment.html`;
+                            break;
+                        default:
+                            window.location.href = `${SERVER_URL}/start.html`;
+                    }
+                } else {
+                    errorDiv.innerText = data.message || "Помилка входу";
+                    errorDiv.style.display = 'block';
+                }
+            } catch (e) {
+                errorDiv.innerText = "Помилка зв'язку з сервером";
+                errorDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
+```[cite: 3]
+
+### Що потрібно зробити зараз:
+1. Збережи цей код у файл **`login.html`** у головній папці та обов'язково скопіюй у папку **`D:\FactoryApp\backend\www\login.html`**.
+2. У терміналі виконай звичну командну зв'язку:
+   ```bash
+   npx cap copy android

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Аметист плюс — Пульт Слюсаря</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-surface: #1a1512;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-base); 
+            padding: 16px; 
+            margin: 0; 
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .header { text-align: center; margin-bottom: 20px; position: relative; z-index: 10; }
+        .header h2 { color: var(--caramel); font-weight: 800; margin: 0 0 10px 0; }
+
+        .card { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            padding: 20px; border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+            margin-bottom: 20px;
+            border: 1px solid var(--border-glass);
+            position: relative; z-index: 10;
+        }
+
+        select, input[type="text"], input[type="number"], textarea { 
+            width: 100%; padding: 14px; margin: 8px 0 16px 0; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; 
+            box-sizing: border-box; font-size: 15px;
+            background: rgba(18, 15, 13, 0.9);
+            color: var(--text-main);
+            outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        select:focus, input:focus, textarea:focus { border-color: var(--caramel); }
+
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 16px; 
+            font-size: 15px; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 8px 25px var(--caramel-glow);
+            transition: transform 0.1s; text-transform: uppercase;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-take { background: linear-gradient(135deg, #ffb300, #ff8f00); color: #120f0d; }
+        .btn-finish { background: linear-gradient(135deg, #00e676, #00c853); color: #120f0d; box-shadow: 0 8px 25px rgba(0,230,118,0.25); }
+        .btn-self { background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border-glass); box-shadow: none; }
+        
+        .ticket-item { 
+            background: rgba(18, 15, 13, 0.7);
+            border-radius: 18px; border-left: 6px solid var(--caramel); 
+            padding: 16px; margin-bottom: 16px; 
+            border: 1px solid var(--border-glass);
+        }
+        .ticket-item.in-progress { border-left-color: var(--mint); }
+
+        .status-wait { color: var(--strawberry); font-weight: 700; }
+        .status-work { color: var(--mint); font-weight: 700; }
+
+        .warehouse-box { 
+            background: rgba(255, 255, 255, 0.03); 
+            padding: 12px; border-radius: 12px; margin-top: 12px; 
+            border: 1px dashed rgba(255,255,255,0.1); 
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+
+    <div class="header">
+        <h2>🔧 Пульт Слюсаря</h2>
+        <select id="mechanicSelect">
+            <option value="">⏳ Завантаження працівників...</option>
+        </select>
+    </div>
+
+    <!-- Блок: Самостійний ремонт -->
+    <div class="card" style="border-top: 4px solid var(--caramel);">
+        <h3 style="margin-top: 0; color: var(--caramel); font-size: 16px;">🛠 Самостійний обхід</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 0;">Знайшли поломку самі? Створіть заявку:</p>
+        <input type="text" id="selfEq" placeholder="Назва верстата (напр. Конвеєр №2)">
+        <textarea id="selfDesc" placeholder="Що ремонтуємо?" style="height: 70px; resize: none;"></textarea>
+        <button class="btn btn-self" onclick="createSelfTicket()">➕ Почати ремонт</button>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top: 0; font-size: 16px;">⏳ Ваші завдання:</h3>
+        <div id="ticketsContainer"></div>
+    </div>
+
+    <script>
+        let warehouseItems = []; 
+
+        async function init() {
+            loadWarehouse();
+            await loadMechanics();
+            await loadTickets();
+            setInterval(loadTickets, 5000); 
+        }
+
+        async function loadWarehouse() {
+            try {
+                const res = await fetch('/warehouse/');
+                warehouseItems = await res.json();
+            } catch (e) { console.error("Помилка складу", e); }
+        }
+
+        async function loadMechanics() {
+            try {
+                const res = await fetch('/users/');
+                const users = await res.json();
+                const mechanics = users.filter(u => u.role === 'Слюсар');
+                
+                const select = document.getElementById('mechanicSelect');
+                select.innerHTML = '<option value="">Хто ви на зміні? (Оберіть себе)</option>';
+                mechanics.forEach(m => {
+                    select.innerHTML += `<option value="${m.full_name}">${m.full_name}</option>`;
+                });
+            } catch (e) { 
+                document.getElementById('mechanicSelect').innerHTML = '<option value="">❌ Помилка зв\'язку</option>';
+            }
+        }
+
+        async function loadTickets() {
+            try {
+                const res = await fetch('/tickets/');
+                let tickets = await res.json();
+                
+                tickets = tickets.filter(t => t.specialty === 'Слюсар' && t.status !== 'Виконано');
+                const container = document.getElementById('ticketsContainer');
+                
+                let warehouseOptions = '<option value="">-- Без запчастин --</option>';
+                warehouseItems.forEach(w => {
+                    if (w.quantity > 0) {
+                        warehouseOptions += `<option value="${w.id}">${w.name} (Залишок: ${w.quantity} ${w.unit})</option>`;
+                    }
+                });
+
+                let html = '';
+                if (tickets.length === 0) {
+                    html = '<p style="text-align:center; color:var(--text-muted); font-size: 14px;">🎉 Немає активних поломок</p>';
+                } else {
+                    tickets.reverse().forEach(t => {
+                        let isWorking = t.status === 'В роботі';
+                        let cardClass = isWorking ? 'ticket-item in-progress' : 'ticket-item';
+                        let statusClass = isWorking ? 'status-work' : 'status-wait';
+                        
+                        html += `
+                            <div class="${cardClass}">
+                                <h3 style="margin-top:0; font-size: 16px;">${t.equipment} <br><small style="color:var(--text-muted); font-size: 12px;">${t.department_name}</small></h3>
+                                <p style="font-size: 14px;"><strong>Проблема:</strong> ${t.description}</p>
+                                <p style="font-size: 13px;"><strong>Статус:</strong> <span class="${statusClass}">${t.status}</span></p>
+                        `;
+
+                        if (!isWorking) {
+                            html += `<button class="btn btn-take" onclick="updateTicket(${t.id}, 'В роботі')">🛠 Взяти в роботу</button>`;
+                        } else {
+                            html += `
+                                <p style="color:var(--caramel); font-size: 13px; margin-bottom: 5px;"><strong>Виконує:</strong> ${t.mechanic_name}</p>
+                                
+                                <div class="warehouse-box">
+                                    <label style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Взяти деталь зі складу:</label>
+                                    <select id="part-${t.id}">${warehouseOptions}</select>
+                                    <input type="number" id="qty-${t.id}" placeholder="Кількість (шт/м/кг)" min="1">
+                                </div>
+
+                                <button class="btn btn-finish" onclick="updateTicket(${t.id}, 'Виконано')">✅ Завершити ремонт</button>
+                            `;
+                        }
+                        html += `</div>`;
+                    });
+                }
+                
+                const activeInputs = document.querySelectorAll('input:focus, select:focus');
+                if (activeInputs.length === 0) {
+                    container.innerHTML = html;
+                }
+            } catch (e) { console.error("Помилка завантаження заявок", e); }
+        }
+
+        async function updateTicket(id, newStatus) {
+            const mechanicName = document.getElementById('mechanicSelect').value;
+            if (!mechanicName) { return alert("Спочатку оберіть своє прізвище зверху!"); }
+
+            let usedPartsStr = "";
+            if (newStatus === 'Виконано') {
+                const partSelect = document.getElementById(`part-${id}`);
+                const qtyInput = document.getElementById(`qty-${id}`);
+                
+                if (partSelect && partSelect.value) {
+                    const itemId = parseInt(partSelect.value);
+                    const usedQty = parseInt(qtyInput.value) || 1;
+                    const item = warehouseItems.find(w => w.id === itemId);
+                    
+                    if (item) {
+                        if (item.quantity < usedQty) {
+                            return alert(`На складі недостатньо: ${item.name}. В наявності лише ${item.quantity} ${item.unit}.`);
+                        }
+                        try {
+                            await fetch(`/warehouse/${itemId}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: item.name, category: item.category, quantity: item.quantity - usedQty, unit: item.unit, min_quantity: item.min_quantity })
+                            });
+                            usedPartsStr = `${item.name} (${usedQty} ${item.unit})`;
+                            await loadWarehouse(); 
+                        } catch(e) { return alert("Помилка списання зі складу!"); }
+                    }
+                } else { usedPartsStr = "Без запчастин"; }
+            }
+
+            try {
+                await fetch(`/tickets/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus, mechanic_name: mechanicName, used_parts: usedPartsStr })
+                });
+                await loadTickets(); 
+            } catch (e) { alert("Помилка зв'язку з сервером!"); }
+        }
+
+        async function createSelfTicket() {
+            const mechanicName = document.getElementById('mechanicSelect').value;
+            if (!mechanicName) { return alert("Спочатку оберіть своє прізвище зверху!"); }
+            const eq = document.getElementById('selfEq').value.trim();
+            const desc = document.getElementById('selfDesc').value.trim();
+            if (!eq || !desc) { return alert("Вкажіть назву верстата та проблему!"); }
+
+            try {
+                await fetch(`/tickets/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ department_name: "Самостійний обхід", equipment: eq, description: desc, priority: "Терміново", mechanic_name: mechanicName, status: "В роботі", specialty: "Слюсар" })
+                });
+                document.getElementById('selfEq').value = '';
+                document.getElementById('selfDesc').value = '';
+                await loadTickets(); 
+                alert("Заявку створено!");
+            } catch (e) { alert("Помилка створення заявки!"); }
+        }
+
+        init();
+    </script>
+</body>
+</html>

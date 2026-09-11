@@ -1,0 +1,8 @@
+{
+  "appId": "com.factory.amethyst",
+  "appName": "Аметист плюс",
+  "webDir": "www",
+  "server": {
+    "cleartext": true
+  }
+}

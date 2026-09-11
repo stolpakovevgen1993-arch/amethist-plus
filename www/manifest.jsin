@@ -1,0 +1,16 @@
+{
+  "name": "Factory ERP",
+  "short_name": "Ремонт",
+  "description": "Система управління ТОіР",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ecf0f1",
+  "theme_color": "#2c3e50",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3201/3201402.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>База Обладнання та QR-коди — Аметист плюс</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+            --border-radius: 24px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
+            padding: 24px; 
+            margin: 0; 
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .header { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            color: var(--text-main); padding: 20px; text-align: center; 
+            border-radius: var(--border-radius); margin-bottom: 24px; position: relative;
+            border: 1px solid var(--border-glass); box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+        .header h2 { margin: 0; color: var(--caramel); font-weight: 800; }
+
+        .form-panel { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            padding: 24px; border-radius: var(--border-radius); margin-bottom: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glass);
+            position: relative; z-index: 10;
+            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+        }
+        .form-panel h3 { width: 100%; margin-top: 0; color: var(--caramel); font-size: 18px; font-weight: 700; }
+        .form-panel input, .form-panel select { 
+            padding: 12px; flex: 1; min-width: 240px; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; 
+            background: rgba(18, 15, 13, 0.9); color: var(--text-main); font-size: 14px;
+            outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .form-panel input:focus, .form-panel select:focus { border-color: var(--caramel); }
+
+        .btn-add { 
+            background: linear-gradient(135deg, #00e676, #00c853); 
+            color: #120f0d; border: none; padding: 12px 24px; 
+            border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 14px;
+            box-shadow: 0 8px 25px rgba(0,230,118,0.25); text-transform: uppercase;
+        }
+
+        .print-btn { 
+            margin-bottom: 24px; background: linear-gradient(135deg, #ffb300, #ff8f00); 
+            color: #120f0d; border: none; padding: 14px 24px; border-radius: 14px; 
+            cursor: pointer; font-weight: 800; width: 100%; font-size: 15px;
+            box-shadow: 0 8px 25px var(--caramel-glow); text-transform: uppercase;
+            position: relative; z-index: 10;
+        }
+
+        .grid { display: flex; flex-wrap: wrap; gap: 20px; position: relative; z-index: 10; }
+        .card { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            padding: 20px; border-radius: var(--border-radius); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); text-align: center; width: 220px; 
+            border: 1px solid var(--border-glass);
+        }
+        .qr-container { margin: 15px auto; display: flex; justify-content: center; padding: 10px; background: white; border-radius: 12px; width: max-content; }
+        
+        @media print {
+            body { background: white !important; color: black !important; padding: 0; }
+            .ambient-glow, .header, .form-panel, .print-btn { display: none !important; }
+            .card { border: 1px solid black !important; box-shadow: none; break-inside: avoid; background: white !important; color: black !important; }
+            .card h3 { color: black !important; }
+            .card p { color: #555 !important; }
+            .qr-container { border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="header">
+        <button onclick="window.location.href='chief.html'" style="background:rgba(255,255,255,0.08); color: var(--text-main); border: 1px solid var(--border-glass); padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; position: absolute; left: 20px; top: 20px;">⬅ Назад</button>
+        <h2 style="margin: 0;">🏭 База Обладнання та QR-генератор</h2>
+    </div>
+
+    <div class="form-panel">
+        <h3>➕ Додати новий верстат</h3>
+        <input type="text" id="eqName" placeholder="Назва (напр. Токарний 1К62)">
+        
+        <select id="eqLoc">
+            <option value="">⏳ Завантаження цехів...</option>
+        </select>
+        
+        <button class="btn-add" onclick="addEquipment()">Зберегти та згенерувати QR</button>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Роздрукувати всі наклейки з QR-кодами</button>
+    
+    <div class="grid" id="eqGrid"></div>
+
+    <script>
+        async function init() {
+            await loadDepartments();
+            await loadEquipment();
+        }
+
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/departments/');
+                if (!response.ok) throw new Error("Помилка сервера");
+                const depts = await response.json();
+                
+                const select = document.getElementById('eqLoc');
+                select.innerHTML = '';
+                
+                if (depts.length === 0) {
+                    select.innerHTML = '<option value="">Створіть цех у структурі!</option>';
+                    return;
+                }
+
+                depts.forEach(d => {
+                    select.innerHTML += `<option value="${d.name}">${d.name}</option>`;
+                });
+            } catch (e) {
+                document.getElementById('eqLoc').innerHTML = '<option value="">Помилка завантаження</option>';
+            }
+        }
+
+        async function loadEquipment() {
+            try {
+                const response = await fetch('/equipment/');
+                const data = await response.json();
+                const grid = document.getElementById('eqGrid');
+                grid.innerHTML = '';
+
+                data.forEach(eq => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const phoneUrl = `${window.location.origin}/operator.html?eq=${encodeURIComponent(eq.name)}&dep=${encodeURIComponent(eq.location)}`;
+                    const laptopUrl = `operator.html?eq=${encodeURIComponent(eq.name)}&dep=${encodeURIComponent(eq.location)}`;
+
+                    card.innerHTML = `
+                        <h3 style="margin: 0; color: var(--caramel); font-size: 16px;">${eq.name}</h3>
+                        <p style="margin: 6px 0; color: var(--text-muted); font-size: 12px;">${eq.location}</p>
+                        <div id="qrcode-${eq.id}" class="qr-container"></div>
+                        <a href="${laptopUrl}" target="_blank" style="font-size: 12px; color: var(--caramel); text-decoration: underline; font-weight: 700;">
+                            🔗 Відкрити пульт
+                        </a>
+                    `;
+                    grid.appendChild(card);
+
+                    new QRCode(document.getElementById(`qrcode-${eq.id}`), {
+                        text: phoneUrl,
+                        width: 130,
+                        height: 130,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                });
+            } catch (e) {
+                console.error("Помилка завантаження обладнання:", e);
+            }
+        }
+
+        async function addEquipment() {
+            const name = document.getElementById('eqName').value.trim();
+            const loc = document.getElementById('eqLoc').value;
+            if(!name || !loc) {
+                alert("Заповніть назву та оберіть цех!");
+                return;
+            }
+
+            try {
+                await fetch('/equipment/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, location: loc })
+                });
+
+                document.getElementById('eqName').value = '';
+                await loadEquipment();
+            } catch (e) {
+                alert("Помилка збереження! Перевірте сервер.");
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

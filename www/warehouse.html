@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Склад Запчастин — Аметист плюс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+            --border-radius: 24px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
+            padding: 24px; 
+            margin: 0; 
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .header { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            color: var(--text-main); padding: 20px; border-radius: var(--border-radius); 
+            margin-bottom: 24px; text-align: center;
+            border: 1px solid var(--border-glass); box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: relative; z-index: 10;
+        }
+        .header h2 { margin: 0; color: var(--caramel); font-weight: 800; }
+        
+        .container { display: flex; gap: 24px; align-items: flex-start; position: relative; z-index: 10; }
+        .form-panel, .table-panel { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            padding: 24px; border-radius: var(--border-radius); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glass);
+        }
+        .form-panel { flex: 1; min-width: 300px; }
+        .table-panel { flex: 3; overflow-x: auto; }
+
+        h3 { margin-top: 0; color: var(--caramel); font-size: 18px; font-weight: 700; }
+        
+        label { display: block; margin-top: 12px; font-weight: 700; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        input, select { 
+            width: 100%; padding: 12px; margin-top: 6px; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; 
+            background: rgba(18, 15, 13, 0.9); color: var(--text-main);
+            box-sizing: border-box; font-size: 14px; outline: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        input:focus, select:focus { border-color: var(--caramel); }
+        
+        .btn-submit { 
+            background: linear-gradient(135deg, #ffb300, #ff8f00); 
+            color: #120f0d; border: none; padding: 14px; width: 100%; 
+            border-radius: 14px; cursor: pointer; font-size: 15px; font-weight: 800; 
+            margin-top: 24px; box-shadow: 0 8px 25px var(--caramel-glow);
+            text-transform: uppercase;
+        }
+        .btn-cancel { 
+            background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border-glass); 
+            padding: 12px; width: 100%; border-radius: 14px; cursor: pointer; font-size: 14px; font-weight: 700; margin-top: 10px; display: none; 
+        }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; }
+        th { background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;}
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .btn-edit { background: none; border: none; cursor: pointer; font-size: 18px; }
+
+        /* Стилі для світлофора дефіциту */
+        .status-ok { background-color: rgba(0, 230, 118, 0.2); color: var(--mint); padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700;}
+        .status-low { background-color: rgba(255, 61, 0, 0.2); color: var(--strawberry); padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; animation: blink 2s infinite;}
+        .row-low { background-color: rgba(255, 61, 0, 0.05) !important; }
+
+        @keyframes blink {
+            50% { opacity: 0.7; }
+        }
+
+        @media(max-width: 900px) {
+            .container { flex-direction: column; }
+            .form-panel, .table-panel { width: 100%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="header">
+        <h2>📦 Склад запчастин та матеріалів</h2>
+        <a href="chief.html" style="display: inline-block; margin-top: 8px; color: var(--caramel); text-decoration: none; font-size: 13px; font-weight: 700;">⬅ На головний дашборд</a>
+    </div>
+
+    <div class="container">
+        <!-- Форма -->
+        <div class="form-panel">
+            <h3 id="formTitle">➕ Нова деталь</h3>
+            <form id="itemForm" onsubmit="submitItem(event)">
+                <label>Назва запчастини/матеріалу:</label>
+                <input type="text" id="itemName" required placeholder="Напр.: Підшипник 6204">
+                
+                <label>Категорія:</label>
+                <select id="itemCategory">
+                    <option value="Електрика">Електрика</option>
+                    <option value="Механіка">Механіка</option>
+                    <option value="Розхідники">Розхідники</option>
+                    <option value="Інструмент">Інструмент</option>
+                    <option value="Інше">Інше</option>
+                </select>
+
+                <div style="display: flex; gap: 12px;">
+                    <div style="flex: 2;">
+                        <label>Кількість:</label>
+                        <input type="number" id="itemQuantity" required value="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Одиниці:</label>
+                        <select id="itemUnit">
+                            <option value="шт">шт</option>
+                            <option value="м">м</option>
+                            <option value="кг">кг</option>
+                            <option value="л">л</option>
+                            <option value="компл">компл</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label>Критичний мінімум:</label>
+                <input type="number" id="itemMinQuantity" required value="5">
+
+                <button type="submit" id="btnSubmit" class="btn-submit">Додати на склад</button>
+                <button type="button" id="btnCancel" class="btn-cancel" onclick="cancelEdit()">Скасувати</button>
+            </form>
+        </div>
+
+        <!-- Таблиця -->
+        <div class="table-panel">
+            <h3>📋 Залишки на складі</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Категорія</th>
+                        <th>В наявності</th>
+                        <th>Мін. ліміт</th>
+                        <th>Статус</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentItems = []; 
+        let editingItemId = null; 
+
+        async function fetchItems() {
+            try {
+                const response = await fetch('/warehouse/');
+                currentItems = await response.json();
+                
+                const tbody = document.getElementById('inventoryBody');
+                tbody.innerHTML = '';
+
+                currentItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    const isLow = item.quantity <= item.min_quantity;
+                    const statusBadge = isLow 
+                        ? `<span class="status-low">⚠️ Замовляй!</span>` 
+                        : `<span class="status-ok">В нормі</span>`;
+                    
+                    if (isLow) row.classList.add('row-low');
+
+                    row.innerHTML = `
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.category}</td>
+                        <td style="font-size: 15px;"><strong>${item.quantity}</strong> <small style="color:var(--text-muted);">${item.unit}</small></td>
+                        <td>${item.min_quantity} ${item.unit}</td>
+                        <td>${statusBadge}</td>
+                        <td><button class="btn-edit" onclick="startEdit(${item.id})" title="Редагувати / Списати">✏️</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Помилка завантаження:', error);
+            }
+        }
+
+        function startEdit(id) {
+            const item = currentItems.find(i => i.id === id);
+            if (!item) return;
+
+            editingItemId = id;
+            
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemCategory').value = item.category;
+            document.getElementById('itemQuantity').value = item.quantity;
+            document.getElementById('itemUnit').value = item.unit;
+            document.getElementById('itemMinQuantity').value = item.min_quantity;
+
+            document.getElementById('formTitle').innerText = '✏️ Оновлення залишків';
+            document.getElementById('btnSubmit').innerText = 'Зберегти зміни';
+            document.getElementById('btnSubmit').style.background = 'linear-gradient(135deg, #00e676, #00c853)';
+            document.getElementById('btnSubmit').style.color = '#120f0d';
+            document.getElementById('btnCancel').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            editingItemId = null;
+            document.getElementById('itemForm').reset();
+            
+            document.getElementById('formTitle').innerText = '➕ Нова деталь';
+            document.getElementById('btnSubmit').innerText = 'Додати на склад';
+            document.getElementById('btnSubmit').style.background = 'linear-gradient(135deg, #ffb300, #ff8f00)';
+            document.getElementById('btnSubmit').style.color = '#120f0d';
+            document.getElementById('btnCancel').style.display = 'none';
+        }
+
+        async function submitItem(event) {
+            event.preventDefault();
+            
+            const itemData = {
+                name: document.getElementById('itemName').value,
+                category: document.getElementById('itemCategory').value,
+                quantity: parseInt(document.getElementById('itemQuantity').value),
+                unit: document.getElementById('itemUnit').value,
+                min_quantity: parseInt(document.getElementById('itemMinQuantity').value)
+            };
+
+            const url = editingItemId ? `/warehouse/${editingItemId}` : '/warehouse/';
+            const method = editingItemId ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemData)
+                });
+                
+                if (response.ok) {
+                    cancelEdit();
+                    fetchItems();
+                }
+            } catch (error) {
+                alert('Помилка зв\'язку з сервером');
+            }
+        }
+
+        fetchItems();
+    </script>
+</body>
+</html>

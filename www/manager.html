@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Облік закупівель та рахунків — Аметист плюс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+            --border-radius: 24px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
+            padding: 24px; 
+            margin: 0;
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .header { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(16px);
+            color: var(--text-main); 
+            padding: 20px; 
+            border-radius: var(--border-radius); 
+            margin-bottom: 24px; 
+            text-align: center;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: relative; z-index: 10;
+        }
+        .header h2 { margin: 0; color: var(--caramel); font-weight: 800; }
+        
+        .container { display: flex; gap: 24px; align-items: flex-start; position: relative; z-index: 10; }
+        .form-panel, .table-panel { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(16px);
+            padding: 24px; 
+            border-radius: var(--border-radius); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glass);
+        }
+        .form-panel { flex: 1; min-width: 320px; }
+        .table-panel { flex: 3; overflow-x: auto; }
+
+        h3 { margin-top: 0; color: var(--caramel); font-size: 18px; font-weight: 700; }
+        
+        label { display: block; margin-top: 12px; font-weight: 700; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        input, select { 
+            width: 100%; padding: 12px; margin-top: 6px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; 
+            background: rgba(18, 15, 13, 0.9);
+            color: var(--text-main);
+            box-sizing: border-box; font-size: 14px;
+            outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        input:focus, select:focus { border-color: var(--caramel); }
+
+        .checkbox-group { display: flex; align-items: center; margin-top: 18px; gap: 12px; }
+        .checkbox-group input { width: auto; margin: 0; transform: scale(1.2); }
+        
+        .btn-submit { 
+            background: linear-gradient(135deg, #ffb300, #ff8f00); 
+            color: #120f0d; border: none; padding: 14px; width: 100%; 
+            border-radius: 14px; cursor: pointer; font-size: 15px; font-weight: 800; 
+            margin-top: 24px; box-shadow: 0 8px 25px var(--caramel-glow);
+            text-transform: uppercase;
+        }
+        .btn-cancel { 
+            background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border-glass); 
+            padding: 12px; width: 100%; border-radius: 14px; cursor: pointer; font-size: 14px; font-weight: 700; margin-top: 10px; display: none; 
+        }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; }
+        th { background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;}
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .badge-ametist { background: rgba(155, 89, 182, 0.2); color: #9b59b6; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .badge-zavadsky { background: rgba(230, 126, 34, 0.2); color: #e67e22; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .doc-yes { color: var(--mint); font-weight: 700; }
+        .doc-no { color: var(--strawberry); font-weight: 700; }
+        
+        .btn-edit { background: none; border: none; cursor: pointer; font-size: 18px; }
+
+        @media(max-width: 900px) {
+            .container { flex-direction: column; }
+            .form-panel, .table-panel { width: 100%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="header">
+        <h2>📊 Панель Керівника: Облік закупівель та рахунків</h2>
+        <a href="chief.html" style="display: inline-block; margin-top: 10px; color: var(--caramel); text-decoration: none; font-size: 13px; font-weight: 700;">⬅ На головний дашборд</a>
+    </div>
+
+    <div class="container">
+        <!-- Форма -->
+        <div class="form-panel">
+            <h3 id="formTitle">➕ Нове замовлення</h3>
+            <form id="orderForm" onsubmit="submitOrder(event)">
+                <label>Найменування (що купили):</label>
+                <input type="text" id="itemName" required placeholder="Наприклад: Підшипники">
+                
+                <label>Фірма-платник:</label>
+                <select id="companyName">
+                    <option value="Аметист">Аметист</option>
+                    <option value="Завадський">Завадський</option>
+                </select>
+
+                <label>Дата замовлення:</label>
+                <input type="text" id="orderDate" placeholder="ДД.ММ.РРРР">
+
+                <label>Дата отримання:</label>
+                <input type="text" id="receiptDate" placeholder="ДД.ММ.РРРР">
+                
+                <label>Номер рахунку:</label>
+                <input type="text" id="billNumber" placeholder="№ рахунку">
+
+                <label>Дата оплати:</label>
+                <input type="text" id="paymentDate" placeholder="ДД.ММ.РРРР">
+
+                <label>Номер накладної:</label>
+                <input type="text" id="invoiceNumber" placeholder="№ накладної">
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hasDocument">
+                    <label style="margin: 0; cursor: pointer; color: var(--text-main);" for="hasDocument">Видаткова здана в бухгалтерію</label>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="btn-submit">Зберегти в базу</button>
+                <button type="button" id="btnCancel" class="btn-cancel" onclick="cancelEdit()">Скасувати редагування</button>
+            </form>
+        </div>
+
+        <!-- Таблиця -->
+        <div class="table-panel">
+            <h3>📑 Реєстр рахунків</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Найменування</th>
+                        <th>Фірма</th>
+                        <th>Рахунок</th>
+                        <th>Дата зам.</th>
+                        <th>Дата отр.</th>
+                        <th>Дата опл.</th>
+                        <th>Накладна</th>
+                        <th>Видаткова</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentOrders = []; 
+        let editingOrderId = null; 
+
+        async function fetchOrders() {
+            try {
+                const response = await fetch('/orders/');
+                currentOrders = await response.json();
+                
+                const tbody = document.getElementById('ordersTableBody');
+                tbody.innerHTML = ''; 
+
+                currentOrders.forEach(order => {
+                    const row = document.createElement('tr');
+                    
+                    const companyBadge = order.company === 'Аметист' 
+                        ? `<span class="badge-ametist">Аметист</span>` 
+                        : `<span class="badge-zavadsky">Завадський</span>`;
+                        
+                    const docStatus = order.has_document 
+                        ? `<span class="doc-yes">✅ Є в бух.</span>` 
+                        : `<span class="doc-no">❌ Немає</span>`;
+
+                    row.innerHTML = `
+                        <td><strong>${order.item_name}</strong></td>
+                        <td>${companyBadge}</td>
+                        <td>${order.bill_number}</td>
+                        <td>${order.order_date}</td>
+                        <td>${order.receipt_date}</td>
+                        <td>${order.payment_date}</td>
+                        <td>${order.invoice_number}</td>
+                        <td>${docStatus}</td>
+                        <td><button class="btn-edit" onclick="startEdit(${order.id})" title="Редагувати">✏️</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Помилка завантаження:', error);
+            }
+        }
+
+        function startEdit(id) {
+            const order = currentOrders.find(o => o.id === id); 
+            if (!order) return;
+
+            editingOrderId = id; 
+            
+            document.getElementById('itemName').value = order.item_name;
+            document.getElementById('companyName').value = order.company;
+            document.getElementById('orderDate').value = order.order_date;
+            document.getElementById('receiptDate').value = order.receipt_date;
+            document.getElementById('billNumber').value = order.bill_number;
+            document.getElementById('paymentDate').value = order.payment_date;
+            document.getElementById('invoiceNumber').value = order.invoice_number;
+            document.getElementById('hasDocument').checked = order.has_document;
+
+            document.getElementById('formTitle').innerText = '✏️ Редагування запису';
+            document.getElementById('btnSubmit').innerText = 'Оновити запис';
+            document.getElementById('btnSubmit').style.background = 'linear-gradient(135deg, #00e676, #00c853)';
+            document.getElementById('btnSubmit').style.color = '#120f0d';
+            document.getElementById('btnCancel').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            editingOrderId = null;
+            document.getElementById('orderForm').reset();
+            
+            document.getElementById('formTitle').innerText = '➕ Нове замовлення';
+            document.getElementById('btnSubmit').innerText = 'Зберегти в базу';
+            document.getElementById('btnSubmit').style.background = 'linear-gradient(135deg, #ffb300, #ff8f00)';
+            document.getElementById('btnSubmit').style.color = '#120f0d';
+            document.getElementById('btnCancel').style.display = 'none';
+        }
+
+        async function submitOrder(event) {
+            event.preventDefault(); 
+            
+            const orderData = {
+                item_name: document.getElementById('itemName').value,
+                company: document.getElementById('companyName').value,
+                order_date: document.getElementById('orderDate').value,
+                receipt_date: document.getElementById('receiptDate').value,
+                bill_number: document.getElementById('billNumber').value,
+                payment_date: document.getElementById('paymentDate').value,
+                invoice_number: document.getElementById('invoiceNumber').value,
+                has_document: document.getElementById('hasDocument').checked
+            };
+
+            const url = editingOrderId ? `/orders/${editingOrderId}` : '/orders/';
+            const method = editingOrderId ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.ok) {
+                    cancelEdit(); 
+                    fetchOrders(); 
+                }
+            } catch (error) {
+                alert('Помилка зв\'язку з сервером');
+            }
+        }
+
+        fetchOrders();
+    </script>
+</body>
+</html>

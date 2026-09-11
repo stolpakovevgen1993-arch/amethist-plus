@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Табель і Персонал — Аметист плюс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --strawberry: #ff3d00;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+            --border-radius: 24px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
+            padding: 24px; 
+            margin: 0; 
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .no-print { display: block; }
+        .header { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            color: var(--text-main); padding: 20px; text-align: center; 
+            border-radius: var(--border-radius); margin-bottom: 24px;
+            border: 1px solid var(--border-glass); box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: relative; z-index: 10;
+        }
+        .header h2 { margin: 0; color: var(--caramel); font-weight: 800; }
+        
+        .top-panel { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--bg-card); backdrop-filter: blur(16px); 
+            padding: 20px; border-radius: var(--border-radius); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 24px; 
+            flex-wrap: wrap; gap: 15px; border: 1px solid var(--border-glass);
+            position: relative; z-index: 10;
+        }
+        .month-selector { 
+            font-size: 16px; font-weight: 700; padding: 10px; 
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; 
+            background: rgba(18, 15, 13, 0.9); color: var(--text-main); cursor: pointer;
+        }
+        
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
+        .btn-auto { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 700;}
+        .btn-calc { background: linear-gradient(135deg, #e67e22, #d35400); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 700;}
+        .btn-print-plan { background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 700;}
+        .btn-print-fact { background: linear-gradient(135deg, #00e676, #00c853); color: #120f0d; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 800;}
+        
+        .staff-panel { 
+            background: var(--bg-card); backdrop-filter: blur(16px); 
+            padding: 20px; border-radius: var(--border-radius); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 24px;
+            border: 1px solid var(--border-glass); position: relative; z-index: 10;
+        }
+        .staff-panel h3 { margin-top: 0; color: var(--caramel); font-size: 16px; font-weight: 700; }
+        .staff-inputs { display: flex; gap: 12px; flex-wrap: wrap; }
+        .staff-inputs input, .staff-inputs select { 
+            padding: 12px; border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; font-size: 14px; background: rgba(18, 15, 13, 0.9); color: var(--text-main);
+        }
+        .staff-inputs input { flex: 2; min-width: 200px; }
+        .staff-inputs select { flex: 1; min-width: 150px; }
+        .btn-add { background: linear-gradient(135deg, #00e676, #00c853); color: #120f0d; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 800;}
+        
+        table { border-collapse: collapse; width: 100%; background: var(--bg-card); box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-size: 13px; margin-bottom: 24px; border-radius: var(--border-radius); overflow: hidden; position: relative; z-index: 10;}
+        th, td { border: 1px solid rgba(255,255,255,0.08); text-align: center; padding: 4px; min-width: 24px; color: var(--text-main); }
+        th { background: rgba(255,255,255,0.03); font-weight: 700; padding: 8px; color: var(--text-muted); font-size: 11px; text-transform: uppercase;}
+        .worker-name { text-align: left; padding-left: 10px; font-weight: 700; min-width: 180px; display: flex; justify-content: space-between; align-items: center;}
+        
+        select.cell-sel { width: 100%; border: none; background: transparent; font-weight: 700; cursor: pointer; text-align: center; appearance: none; font-size: 13px; color: var(--text-main);}
+        select.cell-sel:focus { outline: none; }
+
+        .shift-d { background-color: rgba(241, 196, 15, 0.25); color: #f1c40f; } 
+        .shift-n { background-color: rgba(52, 73, 94, 0.6); color: #ecf0f1; } 
+        .shift-r { background-color: rgba(46, 204, 113, 0.25); color: #2ecc71; } 
+        .shift-off { background-color: rgba(231, 76, 60, 0.25); color: #e74c3c; }
+        .shift-8 { background-color: rgba(52, 152, 219, 0.25); color: #3498db; }
+
+        .detailed-row { display: none; background: rgba(18, 15, 13, 0.4); }
+        .detailed-row.show { display: table-row; }
+        .sub-label { text-align: right; font-size: 11px; color: var(--text-muted); padding-right: 8px !important;}
+        .daily-input { width: 100%; height: 100%; border: none; background: transparent; text-align: center; font-size: 11px; color: var(--caramel); font-weight: 700; outline: none;}
+
+        .payroll-section { display: none; background: var(--bg-card); backdrop-filter: blur(16px); padding: 24px; border-radius: var(--border-radius); box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid var(--border-glass); position: relative; z-index: 10;}
+        .tariffs-panel { background: rgba(18, 15, 13, 0.6); padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; display: flex; gap: 15px; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.06); align-items: center;}
+        .tariffs-panel input { width: 60px; padding: 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; font-weight: 700; background: rgba(18, 15, 13, 0.9); color: var(--text-main);}
+        .payroll-table th { background: rgba(255,255,255,0.04); color: var(--text-main); padding: 12px; }
+        .total-money { font-weight: 800; color: var(--mint); font-size: 15px; }
+        .btn-delete { background: none; border: none; color: var(--strawberry); cursor: pointer; font-size: 14px; }
+
+        .signatures { display: none; margin-top: 30px; font-size: 14px; line-height: 1.8; color: black;}
+        .sign-row { display: flex; justify-content: space-between; margin-bottom: 15px;}
+        h2.print-title { display: none; text-align: center; margin-bottom: 20px; font-size: 18px; color: black;}
+
+        /* РЕЖИМ ДРУКУ ПЛАНУ */
+        body.print-plan-mode @media print {
+            body { background: white !important; color: black !important; padding: 0; }
+            .no-print, .header, .top-panel, .staff-panel, .payroll-section, .detailed-row { display: none !important; }
+            table { box-shadow: none; width: 100%; background: white !important; }
+            th, td { border: 1px solid black !important; color: black !important; background: transparent !important; }
+            select.cell-sel { appearance: none; color: black !important;}
+            .btn-delete { display: none; }
+            h2.print-title { display: block !important; }
+            .signatures { display: block !important; }
+        }
+
+        /* РЕЖИМ ДРУКУ ФАКТУ */
+        body.print-fact-mode @media print {
+            body { background: white !important; color: black !important; padding: 0; }
+            .no-print, .header, .top-panel, .staff-panel { display: none !important; }
+            table { box-shadow: none; width: 100%; background: white !important; }
+            th, td { border: 1px solid black !important; color: black !important; background: transparent !important; }
+            select.cell-sel, .daily-input { appearance: none; color: black !important;}
+            .detailed-row.show { display: table-row !important; }
+            .btn-delete { display: none; }
+            h2.print-title { display: block !important; }
+            .signatures { display: block !important; }
+            .payroll-section { display: block !important; box-shadow: none; background: white !important; color: black !important;}
+            .payroll-table th { background: #eee !important; color: black !important; }
+            .total-money { color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="header no-print">
+        <h2>📅 Розумний Календар та Табель</h2>
+    </div>
+
+    <!-- Панель вибору місяця -->
+    <div class="top-panel no-print">
+        <div>
+            <label style="font-weight: 700; color: var(--text-muted); font-size: 12px; text-transform: uppercase;">Оберіть місяць та рік:</label><br>
+            <input type="month" id="monthSelector" class="month-selector" value="2026-08" onchange="changeMonth()">
+        </div>
+        <div class="controls">
+            <button class="btn-auto" onclick="autoFillSchedule()">✨ Автозаповнити План</button>
+            <button class="btn-calc" onclick="calculatePayroll()">💰 Розрахувати ЗП</button>
+            <label style="font-weight: 700; margin-left: 6px; cursor: pointer; font-size: 13px;">
+                <input type="checkbox" id="toggleDetails" onchange="toggleDetailedRows()"> 🛠 Деталізація (гроші)
+            </label>
+            <div style="border-left: 1px solid rgba(255,255,255,0.1); margin: 0 6px; height: 24px;"></div>
+            <button class="btn-print-plan" onclick="printPlan()">🖨️ Друк ПЛАНУ</button>
+            <button class="btn-print-fact" onclick="printFact()">🖨️ Друк ФАКТУ</button>
+        </div>
+    </div>
+
+    <!-- Управління персоналом -->
+    <div class="staff-panel no-print">
+        <h3>👥 Управління персоналом</h3>
+        <div class="staff-inputs">
+            <input type="text" id="newWorkerName" placeholder="Введіть ПІБ повністю">
+            <select id="newWorkerPattern">
+                <option value="р,д,н,-">Цикл 1: р ➔ д ➔ н ➔ -</option>
+                <option value="д,н,-,р">Цикл 2: д ➔ н ➔ - ➔ р</option>
+                <option value="н,-,р,д">Цикл 3: н ➔ - ➔ р ➔ д</option>
+                <option value="-,р,д,н">Цикл 4: - ➔ р ➔ д ➔ н</option>
+                <option value="5/2">Графік 5/2 (Електрик)</option>
+            </select>
+            <button onclick="addWorker()" class="btn-add">➕ Додати працівника</button>
+        </div>
+    </div>
+
+    <h2 id="printTitleText" class="print-title">Графік роботи</h2>
+
+    <!-- Головна таблиця -->
+    <table id="scheduleTable">
+        <thead>
+            <tr id="daysHeader">
+                <th>ПІБ Працівника</th>
+            </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+    </table>
+
+    <!-- Розрахунок -->
+    <div id="payrollSection" class="payroll-section no-print">
+        <h3 style="margin-top: 0; color: var(--caramel); font-size: 16px;">💵 Розрахунковий лист за місяць</h3>
+        
+        <div class="tariffs-panel">
+            <span><strong>Тарифи:</strong></span>
+            <label>Зв: <input type="number" id="tReg" value="110">₴</label>
+            <label>Св: <input type="number" id="tHol" value="114">₴</label>
+            <label>Ніч: <input type="number" id="tNight" value="120">₴</label>
+            <label>Черг: <input type="number" id="tDuty" value="4">₴</label>
+            <label style="color: var(--caramel);">Бригадир: <input type="number" id="tBrig" value="150">₴</label>
+            <button onclick="calculatePayroll()" style="background:var(--caramel); border:none; padding:6px 12px; color:#120f0d; border-radius:8px; cursor:pointer; font-weight:800;">🔄 Оновити</button>
+        </div>
+
+        <table class="payroll-table">
+            <thead>
+                <tr>
+                    <th>ПІБ Працівника</th>
+                    <th>Години (Зв/Св/Ніч)</th>
+                    <th>Базова ЗП (₴)</th>
+                    <th>Бригадирські (₴)</th>
+                    <th>Понаднормові (₴)</th>
+                    <th>Обладнання (₴)</th>
+                    <th>Всього (₴)</th>
+                </tr>
+            </thead>
+            <tbody id="payrollBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Підписи для друку -->
+    <div class="signatures">
+        <div class="sign-row"><span><strong>Розробив:</strong> Бєлоусов Михайло Петрович</span> <span>____________________</span></div>
+        <div class="sign-row"><span><strong>Погодив:</strong> Стецюк Михайло Миколайович</span> <span>____________________</span></div>
+        <div class="sign-row"><span><strong>Затвердив:</strong> Завадський Петро Петрович</span> <span>____________________</span></div>
+    </div>
+
+    <script>
+        let dbWorkers = []; 
+        let currentYear = 2026;
+        let currentMonth = 8; 
+        let daysInMonth = 31;
+        const BASE_DATE = new Date(2026, 7, 1); 
+
+        function changeMonth() {
+            const val = document.getElementById('monthSelector').value; 
+            if(val) {
+                const parts = val.split('-');
+                currentYear = parseInt(parts[0]);
+                currentMonth = parseInt(parts[1]);
+                daysInMonth = new Date(currentYear, currentMonth, 0).getDate(); 
+                loadSchedule(); 
+            }
+        }
+
+        async function loadWorkers() {
+            const response = await fetch('/workers/');
+            dbWorkers = await response.json();
+            loadSchedule(); 
+        }
+
+        async function addWorker() {
+            const name = document.getElementById('newWorkerName').value;
+            const pattern = document.getElementById('newWorkerPattern').value;
+            if(!name) return alert("Введіть ПІБ!");
+            await fetch('/workers/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, shift_pattern: pattern })
+            });
+            document.getElementById('newWorkerName').value = '';
+            loadWorkers(); 
+        }
+
+        async function deleteWorker(id) {
+            if(!confirm("Видалити працівника?")) return;
+            await fetch(`/workers/${id}`, { method: 'DELETE' });
+            loadWorkers();
+        }
+
+        async function loadSchedule() {
+            const headerRow = document.getElementById('daysHeader');
+            headerRow.innerHTML = '<th>ПІБ Працівника</th>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const th = document.createElement('th');
+                th.innerText = i;
+                headerRow.appendChild(th);
+            }
+
+            const response = await fetch('/shifts/');
+            const allShifts = await response.json();
+            const dbShifts = allShifts.filter(s => s.year === currentYear && s.month === currentMonth);
+
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+
+            if(dbWorkers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${daysInMonth + 1}" style="padding: 20px; color: var(--text-muted);">Немає працівників.</td></tr>`;
+                return;
+            }
+
+            dbWorkers.forEach(workerObj => {
+                const worker = workerObj.name;
+                const safeWorker = worker.replace(/\s+/g, '');
+                
+                const trMain = document.createElement('tr');
+                trMain.innerHTML = `<td class="worker-name"><span>${worker}</span> <button class="btn-delete no-print" onclick="deleteWorker(${workerObj.id})">❌</button></td>`;
+
+                const trBrig = document.createElement('tr'); trBrig.className = 'detailed-row';
+                trBrig.innerHTML = `<td class="sub-label">↳ Бригадир (год)</td>`;
+                
+                const trOver = document.createElement('tr'); trOver.className = 'detailed-row';
+                trOver.innerHTML = `<td class="sub-label">↳ Понаднорм (₴)</td>`;
+                
+                const trEquip = document.createElement('tr'); trEquip.className = 'detailed-row';
+                trEquip.innerHTML = `<td class="sub-label">↳ Обладнання (₴)</td>`;
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const savedShift = dbShifts.find(s => s.worker_name === worker && s.day_of_month === day);
+                    const mark = savedShift ? savedShift.shift_mark : '';
+                    const brig = savedShift && savedShift.brigadier ? savedShift.brigadier : '';
+                    const over = savedShift && savedShift.overtime ? savedShift.overtime : '';
+                    const equip = savedShift && savedShift.equipment ? savedShift.equipment : '';
+
+                    const tdMain = document.createElement('td');
+                    tdMain.id = `cell-${safeWorker}-${day}`;
+                    tdMain.innerHTML = `<select class="cell-sel" id="sel-${safeWorker}-${day}" onchange="saveCell('${worker}', ${day})">
+                        <option value=""></option>
+                        <option value="8" ${mark === '8' ? 'selected' : ''}>8</option>
+                        <option value="д" ${mark === 'д' ? 'selected' : ''}>д</option>
+                        <option value="н" ${mark === 'н' ? 'selected' : ''}>н</option>
+                        <option value="р" ${mark === 'р' ? 'selected' : ''}>р</option>
+                        <option value="-" ${mark === '-' ? 'selected' : ''}>-</option>
+                    </select>`;
+                    updateCellColor(tdMain, mark);
+                    trMain.appendChild(tdMain);
+
+                    trBrig.innerHTML += `<td><input type="number" id="brig-${safeWorker}-${day}" class="daily-input" value="${brig}" onchange="saveCell('${worker}', ${day})"></td>`;
+                    trOver.innerHTML += `<td><input type="number" id="over-${safeWorker}-${day}" class="daily-input" value="${over}" onchange="saveCell('${worker}', ${day})"></td>`;
+                    trEquip.innerHTML += `<td><input type="number" id="equip-${safeWorker}-${day}" class="daily-input" value="${equip}" onchange="saveCell('${worker}', ${day})"></td>`;
+                }
+
+                tbody.appendChild(trMain);
+                tbody.appendChild(trBrig);
+                tbody.appendChild(trOver);
+                tbody.appendChild(trEquip);
+            });
+            
+            toggleDetailedRows(); 
+        }
+
+        function updateCellColor(td, mark) {
+            td.className = ''; 
+            if (mark === 'д') td.className = 'shift-d';
+            if (mark === 'н') td.className = 'shift-n';
+            if (mark === 'р') td.className = 'shift-r';
+            if (mark === '-') td.className = 'shift-off';
+            if (mark === '8') td.className = 'shift-8'; 
+        }
+
+        function toggleDetailedRows() {
+            const isChecked = document.getElementById('toggleDetails').checked;
+            const rows = document.querySelectorAll('.detailed-row');
+            rows.forEach(row => {
+                if (isChecked) row.classList.add('show');
+                else row.classList.remove('show');
+            });
+        }
+
+        async function saveCell(worker, day) {
+            const safeWorker = worker.replace(/\s+/g, '');
+            const mark = document.getElementById(`sel-${safeWorker}-${day}`).value;
+            const brig = document.getElementById(`brig-${safeWorker}-${day}`).value || 0;
+            const over = document.getElementById(`over-${safeWorker}-${day}`).value || 0;
+            const equip = document.getElementById(`equip-${safeWorker}-${day}`).value || 0;
+
+            updateCellColor(document.getElementById(`cell-${safeWorker}-${day}`), mark);
+
+            await fetch('/shifts/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    worker_name: worker, 
+                    year: currentYear, 
+                    month: currentMonth,
+                    day_of_month: day,
+                    shift_mark: mark, 
+                    brigadier: parseInt(brig), 
+                    overtime: parseInt(over), 
+                    equipment: parseInt(equip)
+                })
+            });
+
+            if (document.getElementById('payrollSection').style.display === 'block') {
+                calculatePayroll();
+            }
+        }
+
+        async function autoFillSchedule() {
+            if(!confirm(`Згенерувати План на ${currentMonth}-${currentYear}?`)) return;
+            const msPerDay = 1000 * 60 * 60 * 24;
+
+            for (let workerObj of dbWorkers) {
+                let worker = workerObj.name;
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let mark = '';
+                    let targetDate = new Date(currentYear, currentMonth - 1, day);
+                    
+                    if (workerObj.shift_pattern === "5/2") {
+                        let dayOfWeek = targetDate.getDay();
+                        mark = (dayOfWeek === 0 || dayOfWeek === 6) ? '-' : '8';
+                    } else {
+                        let diffDays = Math.floor((targetDate - BASE_DATE) / msPerDay);
+                        let patternArr = workerObj.shift_pattern.split(',');
+                        let cycleIdx = ((diffDays % 4) + 4) % 4; 
+                        mark = patternArr[cycleIdx]; 
+                    }
+                    
+                    const safeWorker = worker.replace(/\s+/g, '');
+                    document.getElementById(`sel-${safeWorker}-${day}`).value = mark;
+                    saveCell(worker, day);
+                }
+            }
+        }
+
+        function calculatePayroll() {
+            document.getElementById('payrollSection').style.display = 'block';
+            const tbody = document.getElementById('payrollBody');
+            tbody.innerHTML = '';
+
+            const tReg = parseFloat(document.getElementById('tReg').value) || 0;
+            const tHol = parseFloat(document.getElementById('tHol').value) || 0;
+            const tNight = parseFloat(document.getElementById('tNight').value) || 0;
+            const tDuty = parseFloat(document.getElementById('tDuty').value) || 0;
+            const tBrig = parseFloat(document.getElementById('tBrig').value) || 0;
+
+            dbWorkers.forEach((workerObj) => {
+                let worker = workerObj.name;
+                const safeWorker = worker.replace(/\s+/g, '');
+                let regHours = 0, holHours = 0, nightHours = 0, dutyAmount = 0;
+                let sumBrig = 0, sumOver = 0, sumEquip = 0;
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let mark = document.getElementById(`sel-${safeWorker}-${day}`).value;
+                    if (mark === 'д') { regHours += 8; holHours += 4; dutyAmount += (40 * tDuty); }
+                    if (mark === 'н') { nightHours += 8; holHours += 4; dutyAmount += (40 * tDuty); }
+                    if (mark === 'р') { regHours += 8; dutyAmount += (80 * tDuty); }
+                    if (mark === '8') { regHours += 8; }
+
+                    sumBrig += parseInt(document.getElementById(`brig-${safeWorker}-${day}`).value) || 0;
+                    sumOver += parseInt(document.getElementById(`over-${safeWorker}-${day}`).value) || 0;
+                    sumEquip += parseInt(document.getElementById(`equip-${safeWorker}-${day}`).value) || 0;
+                }
+
+                let baseZp = (regHours * tReg) + (holHours * tHol) + (nightHours * tNight) + dutyAmount;
+                let brigMoney = sumBrig * tBrig;
+                let total = baseZp + brigMoney + sumOver + sumEquip;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align:left;"><strong>${worker}</strong></td>
+                    <td>${regHours} / ${holHours} / ${nightHours}</td>
+                    <td>${baseZp}</td>
+                    <td>${brigMoney}</td>
+                    <td>${sumOver}</td>
+                    <td>${sumEquip}</td>
+                    <td class="total-money">${total} ₴</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function printPlan() {
+            document.getElementById('printTitleText').innerText = `ПЛАН-ГРАФІК роботи слюсарів-ремонтників на ${currentMonth < 10 ? '0'+currentMonth : currentMonth}.${currentYear} року`;
+            document.body.classList.add('print-plan-mode');
+            window.print();
+            document.body.classList.remove('print-plan-mode');
+        }
+
+        function printFact() {
+            calculatePayroll(); 
+            document.getElementById('toggleDetails').checked = true; 
+            toggleDetailedRows();
+            
+            document.getElementById('printTitleText').innerText = `ТАБЕЛЬ обліку робочого часу (ФАКТ) за ${currentMonth < 10 ? '0'+currentMonth : currentMonth}.${currentYear} року`;
+            document.body.classList.add('print-fact-mode');
+            window.print();
+            document.body.classList.remove('print-fact-mode');
+        }
+
+        loadWorkers();
+    </script>
+</body>
+</html>

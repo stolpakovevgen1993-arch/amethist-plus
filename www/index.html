@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Аметист плюс - Авторизація</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #12141c;
+            --bg-card: rgba(26, 29, 41, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.07);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--caramel-glow) 0%, transparent 70%);
+            top: 10%; left: 50%; transform: translateX(-50%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .auth-container {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 400px;
+            padding: 24px; box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Брендовий логотип та назва */
+        .brand-header {
+            margin-bottom: 30px;
+        }
+
+        .brand-logo-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #ffb300, #ff8f00);
+            border-radius: 20px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #12141c; font-size: 32px; font-weight: 800;
+            box-shadow: 0 12px 30px var(--caramel-glow);
+            margin-bottom: 14px;
+        }
+
+        .brand-title {
+            font-size: 28px; font-weight: 800;
+            letter-spacing: -0.5px; margin: 0;
+            background: linear-gradient(135deg, #ffffff 30%, #ffb300 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            font-size: 13px; color: var(--text-muted);
+            margin-top: 6px; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* Картка форми */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: left;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block; font-size: 12px; font-weight: 700;
+            color: var(--text-muted); margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%; padding: 14px 16px;
+            background: rgba(18, 20, 28, 0.6);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px; color: var(--text-main);
+            font-size: 15px; box-sizing: border-box;
+            outline: none; transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--caramel);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffb300, #ff9100);
+            color: #12141c; border: none;
+            width: 100%; padding: 16px;
+            border-radius: 14px; font-size: 16px; font-weight: 800;
+            cursor: pointer; box-shadow: 0 8px 25px var(--caramel-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+
+        .auth-footer {
+            margin-top: 20px; text-align: center;
+            font-size: 13px; color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--caramel); text-decoration: none; font-weight: 700;
+        }
+
+        /* Екран очікування (скритий за замовчуванням) */
+        #waitingScreen {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid rgba(255, 179, 0, 0.1);
+            border-top: 4px solid var(--caramel);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="auth-container">
+        
+        <!-- Брендинг -->
+        <div class="brand-header">
+            <div class="brand-logo-icon">А+</div>
+            <h1 class="brand-title">Аметист плюс</h1>
+            <div class="brand-subtitle">Система управління виробництвом</div>
+        </div>
+
+        <!-- Форма входу -->
+        <div class="card" id="loginCard">
+            <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px;">Авторизація</h3>
+            
+            <div class="input-group">
+                <label>Ваше ПІБ</label>
+                <input type="text" id="fullName" class="input-field" placeholder="напр. Іванов І.І.">
+            </div>
+
+            <div class="input-group">
+                <label>PIN-код</label>
+                <input type="password" id="pinCode" class="input-field" placeholder="••••" maxlength="6">
+            </div>
+
+            <button class="btn-primary" onclick="login()">Увійти в систему</button>
+
+            <div class="auth-footer">
+                Ще немає акаунта? <a href="register.html">Зареєструватися</a>
+            </div>
+        </div>
+
+        <!-- Екран очікування розподілення (показується, якщо акаунт на модерації) -->
+        <div class="card" id="waitingScreen">
+            <div class="spinner"></div>
+            <h3 style="margin: 0 0 10px 0; font-size: 18px;">Очікування розподілення</h3>
+            <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                Ваш акаунт зареєстровано. Головний інженер ще не призначив вам роль та цех у системі. Будь ласка, зачекайте.
+            </p>
+            <button class="btn-primary" style="background: rgba(255,255,255,0.08); color: var(--text-main); box-shadow: none;" onclick="location.reload()">Перевірити статус</button>
+        </div>
+
+    </div>
+
+    <script>
+        async function login() {
+            const full_name = document.getElementById('fullName').value.trim();
+            const pin_code = document.getElementById('pinCode').value.trim();
+
+            if (!full_name || !pin_code) {
+                return alert("Введіть ПІБ та PIN-код!");
+            }
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name, pin_code })
+                });
+                
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Перевіряємо чи роль призначена (не "Загальний" або на модерації)
+                    if (data.role === 'Загальний' || !data.role) {
+                        document.getElementById('loginCard').style.display = 'none';
+                        document.getElementById('waitingScreen').style.display = 'block';
+                        return;
+                    }
+
+                    // Зберігаємо сесію
+                    localStorage.setItem('currentUser', JSON.stringify(data));
+
+                    // Перенаправляємо за роллю
+                    switch(data.role) {
+                        case 'Головний інженер':
+                            window.location.href = 'chief.html';
+                            break;
+                        case 'Майстер':
+                            window.location.href = 'index_mobile.html'; // або master пульт
+                            break;
+                        case 'Слюсар':
+                            window.location.href = 'mechanic.html';
+                            break;
+                        case 'Електрик':
+                            window.location.href = 'electrician.html';
+                            break;
+                        default:
+                            window.location.href = 'index_mobile.html';
+                    }
+                } else {
+                    alert(data.message || "Невірне ПІБ або PIN-код");
+                }
+            } catch (e) {
+                alert("Помилка зв'язку з сервером.");
+            }
+        }
+    </script>
+</body>
+</html>

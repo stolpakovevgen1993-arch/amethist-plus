@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Аметист плюс — Пульт Електрика</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --mint: #00e676;
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-base); 
+            padding: 16px; 
+            margin: 0; 
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: radial-gradient(circle at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .card { 
+            background: var(--bg-card); backdrop-filter: blur(16px);
+            padding: 20px; border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+            margin-bottom: 20px;
+            border: 1px solid var(--border-glass);
+            position: relative; z-index: 10;
+        }
+
+        h2, h3 { color: var(--caramel); text-align: center; margin-top: 0; font-weight: 800;}
+        
+        select, input, textarea { 
+            width: 100%; padding: 14px; margin: 8px 0 16px 0; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; 
+            background: rgba(18, 15, 13, 0.9); color: var(--text-main);
+            font-size: 15px; outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+            box-sizing: border-box;
+        }
+        select:focus, input:focus, textarea:focus { border-color: var(--caramel); }
+
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 16px; 
+            font-size: 15px; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 8px 25px var(--caramel-glow);
+            transition: transform 0.1s; text-transform: uppercase;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-green { background: linear-gradient(135deg, #00e676, #00c853); color: #120f0d; box-shadow: 0 8px 25px rgba(0,230,118,0.25); }
+        .btn-blue { background: linear-gradient(135deg, #ffb300, #ff8f00); color: #120f0d; }
+        
+        .ticket-item { 
+            background: rgba(18, 15, 13, 0.7);
+            border-radius: 18px; border-left: 6px solid var(--caramel); 
+            padding: 16px; margin-bottom: 14px; 
+            border: 1px solid var(--border-glass);
+        }
+        
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(18, 15, 13, 0.85); overflow-y: auto; backdrop-filter: blur(8px); z-index: 1000; }
+        .modal-content { background: #1a1512; border: 1px solid var(--border-glass); margin: 15% auto; padding: 24px; border-radius: 24px; width: 90%; max-width: 400px; box-sizing: border-box; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+
+    <div class="card">
+        <h2>⚡ Пульт Електрика</h2>
+        <label style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Хто працює?</label>
+        <select id="workerSelect"></select>
+        <button class="btn btn-blue" onclick="openSelfTaskModal()">➕ Самостійний ремонт</button>
+    </div>
+
+    <div class="card">
+        <h3>⏳ Ваші завдання від Майстра:</h3>
+        <div id="activeTickets"></div>
+    </div>
+
+    <!-- Модальне вікно для самостійного ремонту -->
+    <div class="modal" id="selfTaskModal">
+        <div class="modal-content">
+            <h3>⚡ Самостійний ремонт</h3>
+            
+            <label style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Обладнання / Дільниця:</label>
+            <input list="eqList" id="eqInput" placeholder="Почніть вводити або виберіть...">
+            <datalist id="eqList"></datalist>
+            
+            <label style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Що зроблено:</label>
+            <textarea id="descInput" placeholder="Опис виконаної роботи..." style="height: 70px; resize: none;"></textarea>
+            
+            <label style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Використані матеріали:</label>
+            <select id="partSelect"></select>
+            <input type="number" id="partQty" value="1" min="1" placeholder="Кількість шт/м">
+            
+            <button class="btn btn-green" onclick="saveSelfTask()" style="margin-top: 10px;">✅ Зберегти і закрити</button>
+            <button class="btn" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border-glass); margin-top: 10px; box-shadow: none;" onclick="closeModal()">Скасувати</button>
+        </div>
+    </div>
+
+    <script>
+        let warehouseItems = [];
+
+        async function init() {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = today.getMonth() + 1; 
+            const d = today.getDate();
+
+            try {
+                const resWAll = await fetch('/users/');
+                const allWorkers = await resWAll.json();
+                const electriciansAll = allWorkers.filter(u => u.role && u.role.toLowerCase().includes('електрик'));
+
+                let workersToShow = electriciansAll;
+                let badge = "";
+
+                try {
+                    const resActive = await fetch(`/workers/active?year=${y}&month=${m}&day=${d}`);
+                    const activeWorkers = await resActive.json();
+                    const electriciansActive = activeWorkers.filter(w => electriciansAll.some(e => e.full_name === (w.name || w)));
+                    if (electriciansActive.length > 0) {
+                        workersToShow = electriciansActive;
+                        badge = " (На зміні)";
+                    }
+                } catch (err) { console.log("Табель не заповнено"); }
+
+                const selectEl = document.getElementById('workerSelect');
+                if (workersToShow.length === 0) {
+                    selectEl.innerHTML = '<option value="">⚠️ У базі немає електриків</option>';
+                } else {
+                    selectEl.innerHTML = '<option value="">-- Оберіть своє прізвище --</option>' + 
+                        workersToShow.map(w => `<option value="${w.name || w}">${w.name || w}${badge}</option>`).join('');
+                }
+            } catch (e) { console.error("Помилка завантаження персоналу", e); }
+            
+            try {
+                const resE = await fetch('/equipment/');
+                const equipments = await resE.json();
+                document.getElementById('eqList').innerHTML = equipments.map(e => `<option value="${e.name} (${e.location})">`).join('');
+            } catch (e) { console.error(e); }
+            
+            try {
+                const resP = await fetch('/warehouse/');
+                warehouseItems = await resP.json();
+                document.getElementById('partSelect').innerHTML = `<option value="">-- Без матеріалів --</option>` + 
+                    warehouseItems.map(p => `<option value="${p.id}|${p.name}">${p.name} (Є: ${p.quantity})</option>`).join('');
+            } catch (e) { console.error(e); }
+
+            loadActiveTickets();
+        }
+
+        async function loadActiveTickets() {
+            try {
+                const res = await fetch('/tickets/');
+                const tickets = await res.json();
+                const div = document.getElementById('activeTickets');
+                div.innerHTML = '';
+                
+                const active = tickets.filter(t => (t.status === 'В роботі' || t.status === 'Нова') && t.specialty === 'Електрик');
+                
+                if(active.length === 0) {
+                    div.innerHTML = "<p style='color:var(--text-muted); text-align:center; font-size: 14px;'>🎉 Немає активних завдань.</p>";
+                } else {
+                    active.forEach(t => {
+                        div.innerHTML += `
+                            <div class="ticket-item">
+                                <b style="font-size: 16px;">${t.equipment}</b> <span style="color:var(--text-muted); font-size: 12px;">(${t.department_name})</span><br>
+                                <p style="font-size: 14px; margin: 8px 0;">${t.description}</p>
+                                <button class="btn btn-green" style="padding: 12px; margin-top: 8px; font-size: 14px;" onclick="completeTask(${t.id})">✅ Завершити</button>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openSelfTaskModal() { document.getElementById('selfTaskModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('selfTaskModal').style.display = 'none'; }
+
+        async function saveSelfTask() {
+            const worker = document.getElementById('workerSelect').value;
+            const eqRaw = document.getElementById('eqInput').value;
+            const desc = document.getElementById('descInput').value;
+            const partData = document.getElementById('partSelect').value;
+            const qty = parseInt(document.getElementById('partQty').value) || 0;
+            
+            if(!worker) return alert("Оберіть прізвище працівника зверху!");
+            if(!eqRaw || !desc) return alert("Вкажіть обладнання та що було зроблено!");
+
+            let eqName = eqRaw;
+            let eqDep = "Цех";
+            if (eqRaw.includes('(')) {
+                eqName = eqRaw.split(' (')[0];
+                eqDep = eqRaw.split('(')[1].replace(')', '');
+            }
+            
+            let usedPartsText = "";
+            if (partData && qty > 0) {
+                const pId = partData.split('|')[0];
+                const pName = partData.split('|')[1];
+                usedPartsText = `${pName} - ${qty} од.`;
+                
+                const item = warehouseItems.find(i => i.id == pId);
+                await fetch(`/warehouse/${pId}`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: item.name, category: item.category, quantity: item.quantity - qty, unit: item.unit, min_quantity: item.min_quantity })
+                });
+            }
+
+            await fetch('/tickets/', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ department_name: eqDep, equipment: eqName, description: desc, priority: "Самостійно", specialty: "Електрик", status: "Виконано", mechanic_name: worker, used_parts: usedPartsText })
+            });
+            
+            alert("Роботу успішно збережено!");
+            closeModal();
+            document.getElementById('eqInput').value = '';
+            document.getElementById('descInput').value = '';
+            init();
+        }
+
+        async function completeTask(id) {
+            const worker = document.getElementById('workerSelect').value;
+            if(!worker) return alert("Оберіть своє прізвище зверху!");
+
+            await fetch(`/tickets/${id}`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: "Виконано", mechanic_name: worker })
+            });
+            init();
+        }
+
+        init();
+    </script>
+</body>
+</html>

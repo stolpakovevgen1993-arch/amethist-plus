@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація працівника — Аметист плюс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #120f0d;
+            --bg-card: rgba(30, 24, 21, 0.85);
+            --border-glass: rgba(255, 179, 0, 0.15);
+            --caramel: #ffb300;
+            --caramel-glow: rgba(255, 179, 0, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #a19590;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, var(--caramel-glow) 0%, transparent 70%);
+            top: 10%; left: 50%; transform: translateX(-50%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .auth-container {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 400px;
+            padding: 24px; box-sizing: border-box;
+            text-align: center;
+        }
+
+        .brand-logo-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #ffb300, #ff8f00);
+            border-radius: 20px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #120f0d; font-size: 30px; font-weight: 800;
+            box-shadow: 0 12px 30px var(--caramel-glow);
+            margin-bottom: 14px;
+        }
+
+        .brand-title {
+            font-size: 26px; font-weight: 800;
+            letter-spacing: -0.5px; margin: 0;
+            color: var(--text-main);
+        }
+
+        .brand-subtitle {
+            font-size: 12px; color: var(--text-muted);
+            margin-top: 6px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block; font-size: 11px; font-weight: 700;
+            color: var(--text-muted); margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%; padding: 14px 16px;
+            background: rgba(18, 15, 13, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px; color: var(--text-main);
+            font-size: 15px; box-sizing: border-box;
+            outline: none; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .input-field:focus { border-color: var(--caramel); }
+        select.input-field { cursor: pointer; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffb300, #ff9100);
+            color: #120f0d; border: none;
+            width: 100%; padding: 16px;
+            border-radius: 14px; font-size: 15px; font-weight: 800;
+            cursor: pointer; box-shadow: 0 8px 25px var(--caramel-glow);
+            margin-top: 10px; text-transform: uppercase;
+        }
+
+        .auth-footer {
+            margin-top: 20px; text-align: center;
+            font-size: 13px; color: var(--text-muted);
+        }
+
+        .auth-footer a { color: var(--caramel); text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="auth-container">
+        <div class="brand-logo-icon">А+</div>
+        <h1 class="brand-title">Аметист плюс</h1>
+        <div class="brand-subtitle">Реשстрація працівника</div>
+
+        <div class="card">
+            <h3 style="margin-top: 0; margin-bottom: 18px; font-size: 18px; color: var(--caramel);">Створити акаунт</h3>
+            
+            <div class="input-group">
+                <label>Ваше ПІБ</label>
+                <input type="text" id="regName" class="input-field" placeholder="напр. Сидоренко О.В.">
+            </div>
+
+            <div class="input-group">
+                <label>Оберіть цех</label>
+                <select id="regDept" class="input-field">
+                    <option value="Завантаження цехів...">Завантаження цехів...</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Бажана посада / Роль</label>
+                <select id="regRole" class="input-field">
+                    <option value="Оператор">Оператор (створює заявки)</option>
+                    <option value="Слюсар">Слюсар (механік)</option>
+                    <option value="Електрик">Електрик (обслуговування мереж)</option>
+                    <option value="Майстер">Майстер цеху</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>PIN-код для швидкого входу (4 цифри)</label>
+                <input type="password" id="regPin" class="input-field" placeholder="••••" maxlength="4">
+            </div>
+
+            <button class="btn-primary" onclick="registerUser()">Зареєструватися</button>
+
+            <div class="auth-footer">
+                Вже є акаунт? <a href="login.html">Увійти</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Завантажуємо список цехів при відкритті сторінки
+        async function loadDepartments() {
+            try {
+                const res = await fetch('/departments/');
+                const depts = await res.json();
+                const select = document.getElementById('regDept');
+                select.innerHTML = '<option value="Загальний">Загальний / Всі цехи</option>';
+                depts.forEach(d => {
+                    select.innerHTML += `<option value="${d.name}">${d.name}</option>`;
+                });
+            } catch(e) {
+                console.error("Помилка завантаження цехів");
+            }
+        }
+
+        async function registerUser() {
+            const full_name = document.getElementById('regName').value.trim();
+            const department_name = document.getElementById('regDept').value;
+            const role = document.getElementById('regRole').value;
+            const pin_code = document.getElementById('regPin').value.trim();
+
+            if (!full_name || !pin_code) {
+                return alert("Будь ласка, введіть ПІБ та PIN-код!");
+            }
+
+            try {
+                const response = await fetch('/users/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: full_name,
+                        role: role,
+                        department_name: department_name,
+                        pin_code: pin_code
+                    })
+                });
+
+                if (response.ok) {
+                    alert("✅ Реєстрація успішна! Ваш запит надіслано Головному інженеру на затвердження.");
+                    window.location.href = 'login.html';
+                } else {
+                    alert("❌ Помилка реєстрації на сервері.");
+                }
+            } catch (e) {
+                alert("❌ Немає зв'язку з сервером.");
+            }
+        }
+
+        loadDepartments();
+    </script>
+</body>
+</html>
